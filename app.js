@@ -12,6 +12,7 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.static("public"));
 
 mongoose.connect("mongodb+srv://admin-saad:123-test@cluster0.rgbmq.mongodb.net/todolistDB").then(()=>{console.log("db connected!")})
+mongoose.connect("mongodb://localhost:27017/todolistDB")
 
 const itemsSchema = new mongoose.Schema({
   name: String 
@@ -98,23 +99,33 @@ app.post("/", function(req, res){
       name: itemName
     })
     
-    if(listName === day){
-      item.save();
-      res.redirect("/");
-    } else {
+    if(itemName){
 
-      List.findOne({name: listName}, (err, foundList)=>{
-        if(!err){
-          if(foundList){
-            foundList.items.push(item);
-            foundList.save();
-            res.redirect('/'+listName);        
+      if(listName === day){
+        item.save();
+        res.redirect("/");
+      } else {
+  
+        List.findOne({name: listName}, (err, foundList)=>{
+          if(!err){
+            if(foundList){
+              foundList.items.push(item);
+              foundList.save();
+              res.redirect('/'+listName);        
+              console.log(foundList);
+            }
           }
-        }
-      })
+        })
+    }
       // res.redirect("/"+listName);
     }
-    
+    else{
+      if(listName === day){
+        res.redirect("/")
+      }else{
+        res.redirect("/"+listName)
+      }
+    }
   });
   
   
@@ -136,9 +147,7 @@ app.post("/delete", (req,res)=>{
         res.redirect("/"+listName);
       }
     })  
-    // List.items.pull(id);
-    // List.save();
-    // res.redirect("/"+listName)
+   
   }
   
 })
